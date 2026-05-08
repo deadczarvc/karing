@@ -25,7 +25,6 @@ var sentryPublish = false
 android {
     namespace = "com.nebula.karing"
     compileSdkVersion = "android-35"
-    buildToolsVersion = "36.0.0"
     ndkVersion = "28.2.13676358" // flutter.ndkVersion
 
     compileOptions {
