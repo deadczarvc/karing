@@ -5,18 +5,17 @@ import 'dart:io';
 
 import 'package:country/country.dart' as country;
 import 'package:file_picker/file_picker.dart';
-import 'package:karing/app/modules/remote_config.dart';
-import 'package:karing/app/modules/remote_isp_config_manager.dart';
-import 'package:karing/app/modules/zashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:karing/app/local_services/vpn_service.dart';
+import 'package:karing/app/modules/remote_config.dart';
 import 'package:karing/app/modules/remote_config_manager.dart';
+import 'package:karing/app/modules/remote_isp_config_manager.dart';
 import 'package:karing/app/modules/server_manager.dart';
 import 'package:karing/app/modules/setting_manager.dart';
+import 'package:karing/app/modules/zashboard.dart';
 import 'package:karing/app/runtime/return_result.dart';
 import 'package:karing/app/utils/app_scheme_actions.dart';
-import 'package:karing/app/utils/assets_utils.dart';
 import 'package:karing/app/utils/auto_conf_utils.dart';
 import 'package:karing/app/utils/backup_and_sync_utils.dart';
 import 'package:karing/app/utils/did.dart';
@@ -26,6 +25,7 @@ import 'package:karing/app/utils/network_utils.dart';
 import 'package:karing/app/utils/path_utils.dart';
 import 'package:karing/app/utils/platform_utils.dart';
 import 'package:karing/app/utils/proxy_conf_utils.dart';
+import 'package:karing/app/utils/tag_gen.dart';
 import 'package:karing/app/utils/url_launcher_utils.dart';
 import 'package:karing/app/utils/version_compare_utils.dart';
 import 'package:karing/app/utils/zip_utils.dart';
@@ -54,7 +54,6 @@ import 'package:karing/screens/perapp_android_screen.dart';
 import 'package:karing/screens/perapp_macos_screen.dart';
 import 'package:karing/screens/qrcode_scan_screen.dart';
 import 'package:karing/screens/region_settings_screen.dart';
-import 'package:karing/screens/richtext_viewer.screen.dart';
 import 'package:karing/screens/server_select_screen.dart';
 import 'package:karing/screens/statistics_records_screen.dart';
 import 'package:karing/screens/theme_config.dart';
@@ -63,7 +62,6 @@ import 'package:karing/screens/webview_helper.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
 import 'package:tuple/tuple.dart';
-import 'package:karing/app/utils/tag_gen.dart';
 
 class ImportConfirmResult {
   Set<String>? whiletList;
@@ -232,21 +230,6 @@ class GroupHelper {
       ],
     ]);
     return options;
-  }
-
-  static void showPrivacyPolicy(BuildContext context) {
-    final tcontext = Translations.of(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        settings: RichtextViewScreen.routSettings(),
-        builder: (context) => RichtextViewScreen(
-          title: tcontext.meta.privacyPolicy,
-          file: AssetsUtils.privacyPolicyPath(),
-          content: "",
-        ),
-      ),
-    );
   }
 
   static Future<Tuple2<List<String>, bool>> showUserAgent(
@@ -496,6 +479,84 @@ class GroupHelper {
                   ? null
                   : (bool value) async {
                       settingConfig.tun.autoRouteUseSubRangesByDefault = !value;
+                      SettingManager.setDirty(true);
+                    },
+            ),
+          ),
+          GroupItemOptions(
+            switchOptions: GroupItemSwitchOptions(
+              name: "includeAllNetworks",
+              tips: "iOS 14.0+;macOS 10.15+",
+              switchValue: settingConfig.tun.includeAllNetworks,
+              onSwitch: !tunMode
+                  ? null
+                  : (bool value) async {
+                      settingConfig.tun.includeAllNetworks = value;
+                      SettingManager.setDirty(true);
+                    },
+            ),
+          ),
+          GroupItemOptions(
+            switchOptions: GroupItemSwitchOptions(
+              name: "excludeLocalNetworks",
+              tips: "iOS 14.2+;macOS 10.15+",
+              switchValue: settingConfig.tun.excludeLocalNetworks,
+              onSwitch: !tunMode
+                  ? null
+                  : (bool value) async {
+                      settingConfig.tun.excludeLocalNetworks = value;
+                      SettingManager.setDirty(true);
+                    },
+            ),
+          ),
+          GroupItemOptions(
+            switchOptions: GroupItemSwitchOptions(
+              name: "excludeCellularServices",
+              tips: "iOS 16.4+;macOS 13.3+",
+              switchValue: settingConfig.tun.excludeCellularServices,
+              onSwitch: !tunMode
+                  ? null
+                  : (bool value) async {
+                      settingConfig.tun.excludeCellularServices = value;
+                      SettingManager.setDirty(true);
+                    },
+            ),
+          ),
+          GroupItemOptions(
+            switchOptions: GroupItemSwitchOptions(
+              name: "excludeAPNs",
+              tips: "iOS 16.4+;macOS 13.3+",
+              switchValue: settingConfig.tun.excludeApns,
+              onSwitch: !tunMode
+                  ? null
+                  : (bool value) async {
+                      settingConfig.tun.excludeApns = value;
+                      SettingManager.setDirty(true);
+                    },
+            ),
+          ),
+          GroupItemOptions(
+            switchOptions: GroupItemSwitchOptions(
+              name: "excludeDeviceCommunication",
+              tips: "iOS 17.4+;macOS 14.4+",
+              switchValue: settingConfig.tun.excludeDeviceCommunication,
+              onSwitch: !tunMode
+                  ? null
+                  : (bool value) async {
+                      settingConfig.tun.excludeDeviceCommunication = value;
+                      SettingManager.setDirty(true);
+                    },
+            ),
+          ),
+          GroupItemOptions(
+            switchOptions: GroupItemSwitchOptions(
+              name: "enforceRoutes",
+              tips: "iOS 14.2+;macOS 11.0+",
+              switchValue: settingConfig.tun.enforceRoutes,
+              onSwitch: !tunMode
+                  ? null
+                  : (bool value) async {
+                      settingConfig.tun.enforceRoutes = value;
                       SettingManager.setDirty(true);
                     },
             ),

@@ -29,6 +29,7 @@ import 'package:karing/screens/group_helper.dart';
 import 'package:karing/screens/group_item_creator.dart';
 import 'package:karing/screens/group_item_options.dart';
 import 'package:karing/screens/group_screen.dart';
+import 'package:karing/screens/list_remove_screen.dart';
 import 'package:karing/screens/listview_multi_parts_builder.dart';
 import 'package:karing/screens/my_profiles_edit_screen.dart';
 import 'package:karing/screens/my_profiles_merge_screen.dart';
@@ -297,7 +298,8 @@ class MyProfilesScreenState extends LasyRenderingState<MyProfilesScreen> {
                   : tcontext.meta.disable,
               child: Switch.adaptive(
                 value: item.enable,
-                activeColor: ThemeDefine.kColorGreenBright,
+                activeThumbColor: Colors.white,
+                activeTrackColor: ThemeDefine.kColorGreenBright,
                 onChanged: (bool newValue) async {
                   final statusText = newValue
                       ? Translations.of(context).meta.enable
@@ -563,6 +565,45 @@ class MyProfilesScreenState extends LasyRenderingState<MyProfilesScreen> {
                     UrlLauncherUtils.loadUrl(newUrl);
                   },
                   child: const Icon(Icons.link_outlined, size: 26),
+                ),
+              ),
+              const SizedBox(width: 10),
+            ],
+          ),
+        ],
+        if (item.proxyFilterRemove.isNotEmpty) ...[
+          Row(
+            children: [
+              Tooltip(
+                message: tcontext.meta.removed,
+                child: InkWell(
+                  onTap: () async {
+                    final len = item.proxyFilterRemove.length;
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        settings: ListRemoveScreen.routSettings(
+                          "profiles.proxyFilterRemove",
+                        ),
+                        builder: (context) => ListRemoveScreen(
+                          title: tcontext.meta.removed,
+                          data: item.proxyFilterRemove,
+                        ),
+                      ),
+                    );
+                    if (len != item.proxyFilterRemove.length) {
+                      ServerConfigGroupItem? group = ServerManager.getByGroupId(
+                        item.groupid,
+                      );
+                      if (group != null) {
+                        group.proxyFilterRemove = item.proxyFilterRemove;
+                      }
+
+                      _buildData();
+                      setState(() {});
+                    }
+                  },
+                  child: const Icon(Icons.delete_outline, size: 26),
                 ),
               ),
               const SizedBox(width: 10),

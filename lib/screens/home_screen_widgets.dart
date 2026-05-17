@@ -30,6 +30,7 @@ import 'package:karing/screens/widgets/text.dart';
 import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
+import 'package:vpn_service/state.dart';
 
 abstract class SwitchCard extends StatefulWidget {
   const SwitchCard({
@@ -95,7 +96,8 @@ abstract class SwitchCardState<T extends SwitchCard> extends State<T> {
               ),
               Switch.adaptive(
                 value: enable,
-                activeColor: ThemeDefine.kColorGreenBright,
+                activeThumbColor: Colors.white,
+                activeTrackColor: ThemeDefine.kColorGreenBright,
                 onChanged: (value) {
                   final statusText = value
                       ? Translations.of(context).meta.enable
@@ -190,7 +192,8 @@ abstract class FutureSwitchCardState<T extends FutureSwitchCard>
                   enabled = snapshot.hasData && snapshot.data!;
                   return Switch.adaptive(
                     value: enabled,
-                    activeColor: ThemeDefine.kColorGreenBright,
+                    activeThumbColor: Colors.white,
+                    activeTrackColor: ThemeDefine.kColorGreenBright,
                     onChanged: (value) {
                       final statusText = value
                           ? Translations.of(context).meta.enable
@@ -1007,9 +1010,14 @@ class TunCard extends FutureSwitchCard {
                return;
              }
            }
-           SettingManager.getConfig().tun.enable = value;
-           SettingManager.setDirty(true);
-           onValueChanged?.call(value);
+           final state = await VPNService.getState();
+           if (state == FlutterVpnServiceState.invalid ||
+               state == FlutterVpnServiceState.connected ||
+               state == FlutterVpnServiceState.disconnected) {
+             SettingManager.getConfig().tun.enable = value;
+             SettingManager.setDirty(true);
+             onValueChanged?.call(value);
+           }
          },
        );
   final Function()? onAfterPressed;
@@ -1268,17 +1276,23 @@ class _OutboundModeCardState extends State<OutboundModeCard> {
             ),
             padding: EdgeInsets.symmetric(horizontal: 8),
             groupValue: mode,
-            onValueChanged: (value) {
+            onValueChanged: (value) async {
               if (value == null) {
                 return;
               }
-              final proxyAll = value == Mode.global;
-              if (proxyAll == SettingManager.getConfig().proxyAll) {
-                return;
+              final state = await VPNService.getState();
+              if (state == FlutterVpnServiceState.invalid ||
+                  state == FlutterVpnServiceState.connected ||
+                  state == FlutterVpnServiceState.disconnected) {
+                final proxyAll = value == Mode.global;
+                if (proxyAll == SettingManager.getConfig().proxyAll) {
+                  return;
+                }
+                SettingManager.getConfig().proxyAll = proxyAll;
+                SettingManager.save();
+                widget.onChanged?.call(value);
               }
-              SettingManager.getConfig().proxyAll = proxyAll;
-              SettingManager.save();
-              widget.onChanged?.call(value);
+
               setState(() {});
             },
             thumbColor: theme.colorScheme.secondaryContainer.withAlpha(

@@ -988,41 +988,27 @@ class _DiversionGroupCustomEditScreenState
                 if (widget.options.showLogicOperations) ...[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    child: Row(
-                      children: [
-                        Text(tcontext.meta.logicOperation),
-                        const SizedBox(width: 10),
-                        SizedBox(
-                          width: 120,
-                          child: ListTile(
-                            title: const Text('OR'),
-                            horizontalTitleGap: 5,
-                            leading: Radio(
-                              value: LogicOperations.or,
-                              groupValue: _logicOperation,
-                              onChanged: (LogicOperations? value) {
-                                _logicOperation = value;
-                                setState(() {});
-                              },
-                            ),
+                    child: RadioGroup<LogicOperations>(
+                      groupValue: _logicOperation,
+                      onChanged: (LogicOperations? selected) {
+                        _logicOperation = selected;
+                        setState(() {});
+                      },
+                      child: Row(
+                        children: [
+                          Text(tcontext.meta.logicOperation),
+                          const SizedBox(width: 10),
+                          _buildLogicOperationOption(
+                            label: 'OR',
+                            value: LogicOperations.or,
                           ),
-                        ),
-                        SizedBox(
-                          width: 130,
-                          child: ListTile(
-                            title: const Text('AND'),
-                            horizontalTitleGap: 5,
-                            leading: Radio(
-                              value: LogicOperations.and,
-                              groupValue: _logicOperation,
-                              onChanged: (LogicOperations? value) {
-                                _logicOperation = value;
-                                setState(() {});
-                              },
-                            ),
+                          const SizedBox(width: 20),
+                          _buildLogicOperationOption(
+                            label: 'AND',
+                            value: LogicOperations.and,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -1055,6 +1041,30 @@ class _DiversionGroupCustomEditScreenState
             onChanged: (text) {},
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLogicOperationOption({
+    required String label,
+    required LogicOperations value,
+  }) {
+    return InkWell(
+      onTap: () {
+        _logicOperation = value;
+        setState(() {});
+      },
+      borderRadius: BorderRadius.circular(4),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Radio<LogicOperations>(
+            value: value,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            visualDensity: VisualDensity.compact,
+          ),
+          Text(label),
+        ],
       ),
     );
   }
